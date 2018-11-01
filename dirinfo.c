@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+//lists all the files in directory
 void listFiles(char * path){
 
 }
