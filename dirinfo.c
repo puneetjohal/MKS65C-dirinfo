@@ -12,6 +12,7 @@ int check(char * dir){
   return 0;
 }
 
+//show the total size of all the regular files the directory
 int fileSize(char * file){
   return 0;
 }
