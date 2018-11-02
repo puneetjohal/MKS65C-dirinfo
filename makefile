@@ -1,7 +1,7 @@
 all: dirinfo.o
 	gcc dirinfo.o
 
-run:
+run: all
 	./a.out
 
 file.o: dirinfo.c
