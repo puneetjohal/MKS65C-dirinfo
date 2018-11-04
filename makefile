@@ -7,5 +7,6 @@ run: all
 file.o: dirinfo.c
 	gcc -c dirinfo.c
 
-clear:
-	rm *
+clean:
+	rm *.o
+	rm *.out
