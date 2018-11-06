@@ -116,7 +116,12 @@ int fileSize(char * file){
   return size;
 }
 
-int main(){
+int main(int argc, char * argv[]){
+  printf("%d\n", argc);
+  printf("%s\n", argv[0]);
+  // char buf[100];
+  // fgets(buf, 100, stdin);
+  // printf("%s\n", buf);
   printf("List of Items in Directory:\012");
   listFiles("./");
   fileSize("./");
