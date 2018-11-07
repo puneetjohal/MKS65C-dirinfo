@@ -9,6 +9,8 @@
 #include <time.h>
 #include <pwd.h>
 
+extern int errno;
+
 
 //    printf("Errors:%s\012", strerror(errno));
 
@@ -29,19 +31,49 @@ void modeConvert(int mode){
   printf( (mode & S_IXOTH) ? "x" : "-");
 }
 
+//finds number size to make alignment neat
+void numSize(long num){
+  //printf("%ld", num);
+  int digits = 0;
+  if (num == 0){
+    digits++;
+  }
+  while (num % 10 == 0 && num > 999){
+    num /= 10;
+  }
+  while (num > 0){
+    num /= 10;
+    digits++;
+  }
+  //printf("    %d", digits);
+  for(int i = 5; i > 0; i--){
+    if (i == 5){
+      i = i - digits;
+    }
+    printf(" ");
+  }
+}
+
 //size converter
 void sizeConvert(long byt){
   if (byt > 1000000000){
-    printf("%lf gigabytes\012", (float)byt/1000000000);
+    printf("%.6g ", (float)byt/1000000000); numSize(byt);
+    printf("GB  ");
   }
   else if (byt > 1000000){
-    printf("%lf megabytes\012", (float)byt/1000000);
+    printf("%.6g", (float)byt/1000000); numSize(byt);
+    printf("MB ");
+
   }
   else if (byt > 1000){
-    printf("%lf kilobytes\012", (float)byt/1000);
+    printf("%.6g", (float)byt/1000); numSize(byt);
+    printf("KB  ");
+
   }
   else {
-    printf("%ld bytes\012", byt);
+    printf("%ld", byt); numSize(byt);
+    printf(" B   ");
+
   }
 }
 
@@ -62,6 +94,7 @@ void showInfo(char * file){
   // printf("%s ", (pass->pw_name));
   printf("%s ",date);
   sizeConvert(buff->st_size);
+  printf("%s\012", file);
 
 }
 
@@ -70,24 +103,30 @@ void showInfo(char * file){
 void listFiles(char * path){
   DIR * d;
   d = opendir(path);
+  if (errno != 0){
+    printf("Error: %s\012", strerror(errno));
+  }
   //printf("OPENED\012");
   struct dirent * entry;
   entry = readdir(d);
-  while (entry){
-    if (entry->d_type == DT_DIR){
-      printf("%s \104irectory: %s\012", path ,entry->d_name);
+  if (strcmp(entry->d_name, ".DS_Store") != 0){
+    while (entry){
+      if (entry->d_type == DT_DIR){
+        // printf("%s \104irectory: %s\012", path ,entry->d_name);
+        showInfo(entry->d_name);
 
-      //Recursive portion for sub direcories
-      // if (strcmp(".", entry->d_name) != 0 && strcmp("..", entry->d_name) != 0){
-      //   listFiles(entry->d_name);
-      // }
+        //Recursive portion for sub direcories
+        // if (strcmp(".", entry->d_name) != 0 && strcmp("..", entry->d_name) != 0){
+        //   listFiles(entry->d_name);
+        // }
 
+      }
+      else {
+        // printf("File: %s\012", entry->d_name);
+        showInfo(entry->d_name);
+      }
+      entry = readdir(d);
     }
-    else {
-      printf("File: %s\012", entry->d_name);
-      showInfo(entry->d_name);
-    }
-    entry = readdir(d);
   }
   closedir(d);
 }
@@ -112,18 +151,27 @@ int fileSize(char * file){
     entry = readdir(d);
   }
   closedir(d);
-  printf("Total size: %d\012", size);
+  printf("Total size: %d", size);
   return size;
 }
 
 int main(int argc, char * argv[]){
-  printf("%d\n", argc);
-  printf("%s\n", argv[0]);
+  // printf("%d\n", argc);
+  // printf("%s\n", argv[0]);
   // char buf[100];
   // fgets(buf, 100, stdin);
   // printf("%s\n", buf);
-  printf("List of Items in Directory:\012");
-  listFiles("./");
-  fileSize("./");
+  if(argc > 1){
+    listFiles(argv[1]);
+  }
+  else{
+    char dirname[100];
+    printf("Type in path:\n");
+    scanf("%s", dirname);
+    listFiles(dirname);
+  }
+  // printf("List of Items in Directory:\012");
+  // listFiles("./");
+  // fileSize("./");
   return 0;
 }
